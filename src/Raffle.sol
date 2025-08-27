@@ -17,6 +17,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     error Raffle__NotEnoughTimePassed();
     error Raffle__NoPlayers();
     error Raffle__RaffleNotOpen();
+    error Raffle__UpkeepNotNeeded(uint256 currentBalance, uint256 numPlayers, uint256 raffleState);
 
     // Events
     event RaffleEnter(address indexed player);
@@ -38,13 +39,13 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     uint256 private immutable i_interval;
 
     // VRF Variables
-    uint64 private immutable i_subscriptionId;
+    uint256 private immutable i_subscriptionId;
     bytes32 private immutable i_gasLane;
     uint32 private immutable i_callbackGasLimit;
     address private immutable i_vrfCoordinator;
 
     constructor(
-        uint64 subscriptionId,
+        uint256 subscriptionId,
         bytes32 gasLane,
         uint256 interval,
         uint256 entranceFee,
@@ -112,7 +113,11 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     function performUpkeep(bytes calldata /* performData */) external override {
         (bool upkeepNeeded,) = checkUpkeep("");
         if (!upkeepNeeded) {
-            revert("Upkeep not needed");
+            revert Raffle__UpkeepNotNeeded(
+                address(this).balance,
+                s_players.length,
+                uint256(s_raffleState)
+            );
         }
         s_raffleState = RaffleState.CALCULATING;
         // TODO: Implement VRF request logic
