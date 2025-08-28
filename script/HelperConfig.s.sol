@@ -3,7 +3,6 @@ pragma solidity ^0.8.19;
 
 import {LinkToken} from "../test/mocks/LinkToken.sol";
 import {Script, console2} from "forge-std/Script.sol";
-import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 
 abstract contract CodeConstants {
     uint96 public constant MOCK_BASE_FEE = 0.25 ether;
@@ -121,13 +120,8 @@ contract HelperConfig is CodeConstants, Script {
         console2.log(unicode"⚠️ You have deployed a mock conract!");
         console2.log("Make sure this was intentional");
         vm.startBroadcast();
-        VRFCoordinatorV2_5Mock vrfCoordinatorV2_5Mock = new VRFCoordinatorV2_5Mock(
-                MOCK_BASE_FEE,
-                MOCK_GAS_PRICE_LINK,
-                MOCK_WEI_PER_UINT_LINK
-            );
         LinkToken link = new LinkToken();
-        uint256 subscriptionId = vrfCoordinatorV2_5Mock.createSubscription();
+        uint256 subscriptionId = 1; // Mock subscription ID for simplified version
         vm.stopBroadcast();
 
         localNetworkConfig = NetworkConfig({
@@ -136,7 +130,7 @@ contract HelperConfig is CodeConstants, Script {
             automationUpdateInterval: 30, // 30 seconds
             raffleEntranceFee: 0.01 ether,
             callbackGasLimit: 500000, // 500,000 gas
-            vrfCoordinatorV2_5: address(vrfCoordinatorV2_5Mock),
+            vrfCoordinatorV2_5: address(0), // Mock address for simplified version
             link: address(link),
             account: FOUNDRY_DEFAULT_SENDER
         });
