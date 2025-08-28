@@ -9,6 +9,7 @@ import {Test, console2} from "forge-std/Test.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {LinkToken} from "../../test/mocks/LinkToken.sol";
 import {CodeConstants} from "../../script/HelperConfig.s.sol";
+import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 
 contract RaffleTest is Test, CodeConstants {
     /*//////////////////////////////////////////////////////////////
@@ -104,6 +105,9 @@ contract RaffleTest is Test, CodeConstants {
         // Act - performUpkeep will complete the raffle and reset state
         raffle.performUpkeep("");
         
+        // Simulate VRF callback to complete the raffle
+        VRFCoordinatorV2_5Mock(address(vrfCoordinatorV2_5)).fulfillRandomWords(1, address(raffle));
+        
         // Assert - After performUpkeep, the raffle should be open again
         // and players should be able to enter (since it's a new raffle)
         assert(raffle.getRaffleState() == Raffle.RaffleState.OPEN);
@@ -147,6 +151,9 @@ contract RaffleTest is Test, CodeConstants {
         // We'll test this by checking the state during the performUpkeep execution
         // Since we can't easily capture the intermediate state, we'll test the final state
         raffle.performUpkeep("");
+        
+        // Simulate VRF callback to complete the raffle
+        VRFCoordinatorV2_5Mock(address(vrfCoordinatorV2_5)).fulfillRandomWords(1, address(raffle));
         
         // Act - After performUpkeep, the state should be OPEN again
         (bool upkeepNeeded,) = raffle.checkUpkeep("");
@@ -222,6 +229,9 @@ contract RaffleTest is Test, CodeConstants {
         vm.recordLogs();
         raffle.performUpkeep(""); // emits requestId and immediately completes raffle
         
+        // Simulate VRF callback to complete the raffle
+        VRFCoordinatorV2_5Mock(address(vrfCoordinatorV2_5)).fulfillRandomWords(1, address(raffle));
+        
         Vm.Log[] memory entries = vm.getRecordedLogs();
         bytes32 requestId = entries[1].topics[1];
         
@@ -263,6 +273,9 @@ contract RaffleTest is Test, CodeConstants {
         vm.recordLogs();
         raffle.performUpkeep(""); // This will internally call fulfillRandomWords
         
+        // Simulate VRF callback to complete the raffle
+        VRFCoordinatorV2_5Mock(address(vrfCoordinatorV2_5)).fulfillRandomWords(1, address(raffle));
+        
         // Verify that the raffle was completed
         assert(raffle.getRaffleState() == Raffle.RaffleState.OPEN);
         assert(raffle.getNumberOfPlayers() == 0);
@@ -290,6 +303,9 @@ contract RaffleTest is Test, CodeConstants {
         // Act
         vm.recordLogs();
         raffle.performUpkeep(""); // This will immediately call fulfillRandomWords
+        
+        // Simulate VRF callback to complete the raffle
+        VRFCoordinatorV2_5Mock(address(vrfCoordinatorV2_5)).fulfillRandomWords(1, address(raffle));
         
         // Assert
         address recentWinner = raffle.getRecentWinner();

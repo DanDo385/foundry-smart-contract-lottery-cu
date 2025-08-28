@@ -1,7 +1,9 @@
+// script/HelperConfig.s.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
 import {LinkToken} from "../test/mocks/LinkToken.sol";
+import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 import {Script, console2} from "forge-std/Script.sol";
 
 abstract contract CodeConstants {
@@ -121,7 +123,8 @@ contract HelperConfig is CodeConstants, Script {
         console2.log("Make sure this was intentional");
         vm.startBroadcast();
         LinkToken link = new LinkToken();
-        uint256 subscriptionId = 1; // Mock subscription ID for simplified version
+        VRFCoordinatorV2_5Mock vrfCoordinatorV2_5 = new VRFCoordinatorV2_5Mock(0.002 ether, 40 gwei, 0.004 ether);
+        uint256 subscriptionId = 0; // Set to 0 so deployment script creates a new subscription
         vm.stopBroadcast();
 
         localNetworkConfig = NetworkConfig({
@@ -130,7 +133,7 @@ contract HelperConfig is CodeConstants, Script {
             automationUpdateInterval: 30, // 30 seconds
             raffleEntranceFee: 0.01 ether,
             callbackGasLimit: 500000, // 500,000 gas
-            vrfCoordinatorV2_5: address(0), // Mock address for simplified version
+            vrfCoordinatorV2_5: address(vrfCoordinatorV2_5), // Use the actual VRFCoordinatorV2_5Mock
             link: address(link),
             account: FOUNDRY_DEFAULT_SENDER
         });
