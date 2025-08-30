@@ -5,7 +5,6 @@ pragma solidity ^0.8.19;
 import {Script, console} from "forge-std/Script.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 import {Raffle} from "../src/Raffle.sol";
-import {DevOpsTools} from "foundry-devops/src/DevOpsTools.sol";
 import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 import {LinkToken} from "../test/mocks/LinkToken.sol";
 import {CodeConstants} from "./HelperConfig.s.sol";
@@ -53,8 +52,9 @@ contract AddConsumer is Script {
     }
 
     function run() external {
-        address mostRecentlyDeployed = DevOpsTools.get_most_recent_deployment("Raffle", block.chainid);
-        addConsumerUsingConfig(mostRecentlyDeployed);
+        // Instead of using DevOpsTools, we'll require the user to pass the contract address
+        // This function now requires manual input of the contract address
+        revert("Please use addConsumerUsingConfig() with the contract address as parameter");
     }
 }
 
